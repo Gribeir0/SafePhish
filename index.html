@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manual SafePhish</title>
+    <style>
+        /* Estilos Globais Baseados na Imagem */
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            display: flex;
+            background-color: #f7f7f7;
+            color: #333;
+        }
+
+        /* --- Barra Lateral (Sidebar) --- */
+        .sidebar {
+            width: 230px;
+            background-color: #2a3f54;
+            color: #fff;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            padding: 15px 25px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        /* Logo 'U' similar ao 'SafePhish' */
+        .sidebar-brand-icon {
+            display: inline-block;
+            background-color: #1abc9c;
+            color: #fff;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            text-align: center;
+            line-height: 30px;
+            font-weight: bold;
+            margin-right: 10px;
+            font-family: serif;
+        }
+
+        .sidebar-nav {
+            list-style: none;
+            padding: 0;
+            margin: 20px 0 0 0;
+        }
+
+        .sidebar-nav li a {
+            display: block;
+            color: #e7e7e7;
+            text-decoration: none;
+            padding: 12px 25px;
+            font-size: 14px;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+
+        .sidebar-nav li a:hover {
+            background-color: #34495e;
+            color: #fff;
+        }
+
+        .sidebar-nav .nav-header {
+            font-size: 11px;
+            color: #8a9baf;
+            padding: 12px 25px;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+
+        /* --- Conteúdo Principal --- */
+        .main-container {
+            margin-left: 230px; /* Mesma largura da sidebar */
+            width: calc(100% - 230px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- Barra Superior (Header) --- */
+        .top-nav {
+            height: 50px;
+            background-color: #fff;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 0 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        /* --- Página de Conteúdo --- */
+        .page-content {
+            padding: 25px;
+            flex-grow: 1;
+        }
+        
+        /* Widget/Painel para Conteúdo */
+        .widget {
+            background-color: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            margin-bottom: 25px;
+            overflow: hidden; /* Para conter os headers */
+        }
+
+        .widget-header {
+            padding: 12px 20px;
+            border-bottom: 1px solid #e0e0e0;
+            background-color: #f9f9f9;
+        }
+
+        .widget-header h2 {
+            margin: 0;
+            color: #2a3f54;
+            font-size: 18px;
+        }
+
+        .widget-content {
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .widget-content h3 {
+            color: #2a3f54;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+            margin-top: 0;
+        }
+
+        .widget-content h4 {
+            color: #1abc9c;
+            margin-top: 20px;
+        }
+        
+        .widget-content h5 {
+            color: #73879c;
+            font-weight: bold;
+            margin-bottom: 5px;
+            margin-top: 20px;
+        }
+
+        /* Estilos para Listas */
+        .widget-content ul, .widget-content ol {
+            padding-left: 20px;
+        }
+
+        .widget-content li {
+            margin-bottom: 8px;
+        }
+        
+        /* Estilos para Botões */
+        .btn {
+            background-color: #1abc9c;
+            color: white;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: none;
+            display: inline-block;
+            margin: 5px 0;
+        }
+        
+        .btn-secondary {
+            background-color: #73879c;
+        }
+
+        /* Estilos para Blocos de Código */
+        pre {
+            background-color: #2a3f54;
+            color: #e7e7e7;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+        }
+
+        code {
+            font-family: 'Courier New', Courier, monospace;
+        }
+        
+        /* Estilos para Notas/Observações */
+        .note {
+            background-color: #fdfae5;
+            border: 1px solid #f0e0b0;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 15px 0;
+        }
+
+        /* Estilos para Tabela */
+        .widget-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        .widget-content th,
+        .widget-content td {
+            border: 1px solid #e0e0e0;
+            padding: 10px 12px;
+            text-align: left;
+        }
+
+        .widget-content th {
+            background-color: #f9f9f9;
+            color: #2a3f54;
+            font-weight: bold;
+        }
+
+        .widget-content td a {
+            color: #1abc9c;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        
+        .widget-content td a:hover {
+            text-decoration: underline;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="sidebar-brand">
+            <span class="sidebar-brand-icon">U</span>
+            <span>SafePhish</span>
+        </div>
+        <ul class="sidebar-nav">
+            <li class="nav-header">Manual</li>
+            <li><a href="#settings">Configurações da Conta</a></li>
+            <li><a href="#groups">Grupos e Usuários</a></li>
+            <li><a href="#templates">Modelos de E-mail</a></li>
+            <li><a href="#attachments">Rastreamento de Anexos</a></li>
+            <li><a href="#sending-profiles">Perfis de Envio (SMTP)</a></li>
+            <li><a href="#reports">Geração de Relatórios</a></li>
+            <li><a href="#email-reporting">Reporte de E-mails</a></li>
+            <li><a href="#webhooks">Webhooks</a></li>
+            <li><a href="#user-management">Gerenciamento de Usuários</a></li>
+            <li><a href="#logging">Configuração de Logs</a></li>
+        </ul>
+    </div>
+
+    <div class="main-container">
+        
+        <div class="top-nav">
+            </div>
+
+        <div class="page-content">
+
+            <h1>Manual de Operação SafePhish</h1>
+            <p>Este documento detalha as principais funcionalidades da plataforma SafePhish.</p>
+
+            <div class="widget" id="settings">
+                <div class="widget-header">
+                    <h2>Alterando Configurações da Conta</h2>
+                </div>
+                <div class="widget-content">
+                    <h3>Alterando Sua Senha e Atualizando Configurações</h3>
+                    <p>Ao clicar na aba "Account Settings", você será direcionado para a página de configurações.</p>
+                    <p>Essa página permite alterar sua senha e também atualizar sua chave de API.</p>
+                    
+                    <img src="/assets/account_settings.png" alt="Página de Configurações da Conta" style="width: 100%; max-width: 700px; height: auto; border: 1px solid #ddd; border-radius: 4px; margin: 15px 0;">
+
+                    <h4>Alterar Senha</h4>
+                    <p>Para alterar sua senha, informe sua senha atual e a nova senha que deseja utilizar, depois clique em "Save". Quaisquer erros serão exibidos na própria página.</p>
+                    <h4>Redefinir Chave de API</h4>
+                    <p>Esta página também oferece a opção de redefinir sua chave de API. Para redefinir sua chave de API, basta clicar no botão "Reset" ao lado da chave atual.</p>
+                </div>
+            </div>
+
+            <div class="widget" id="groups">
+                <div class="widget-header">
+                    <h2>Groups (Grupos e Usuários)</h2>
+                </div>
+                <div class="widget-content">
+                    <p>O SafePhish permite que você gerencie grupos de usuários que serão alvo nas campanhas.</p>
+                    
+                    <h3>Criando Grupos</h3>
+                    <p>Para criar um grupo, primeiro navegue até a página "Users & Groups" no menu de navegação e clique no botão 
+                       <img src="/assets/new_group.png" alt="Botão New Group" style="vertical-align: middle; max-width: 150px; height: auto; margin: 0 5px;">
+                       . Você verá a seguinte janela aparecer:
+                    </p>
+                    
+                    <img src="/assets/new_group1.png" alt="Modal de novo grupo" style="width: 100%; max-width: 700px; height: auto; border: 1px solid #ddd; border-radius: 4px; margin: 15px 0;">
+
+                    <p>Para adicionar um grupo, você precisa especificar um nome único para o grupo, além de pelo menos um destinatário.</p>
+
+                    <h3>Adicionando Usuários ao Grupo</h3>
+                    <p>Você pode adicionar usuários ao grupo de duas maneiras:</p>
+                    
+                    <h4>1. Adicionando Usuários Manualmente</h4>
+                    <p>Para adicionar usuários manualmente, preencha os campos "First Name", "Last Name", "Email" e "Position" e clique no botão "Add".</p>
+
+                    <h4>2. Upload em Massa de Usuários (CSV)</h4>
+                    <p>Adicionar usuários manualmente pode ser trabalhoso. Para facilitar, o SafePhish permite fazer upload em massa a partir de um arquivo CSV.</p>
+                    <p>O arquivo CSV deve conter o seguinte cabeçalho:</p>
+                    <ul>
+                        <li>First Name</li>
+                        <li>Last Name</li>
+                        <li>Email</li>
+                        <li>Position</li>
+                    </ul>
+                    <p>Para enviar um CSV com as informações dos usuários, clique no botão "Bulk Import Users" e selecione o arquivo desejado. Os usuários serão carregados e exibidos na janela.</p>
+                    <p>Para salvar o grupo, clique em "Save changes".</p>
+                </div>
+            </div>
+            
+            <div class="widget" id="templates">
+                <div class="widget-header">
+                    <h2>Templates (Modelos de E-mail)</h2>
+                </div>
+                <div class="widget-content">
+                    <p>Um "Template" (Modelo) é o conteúdo dos e-mails que são enviados aos alvos. Eles podem ser importados de um e-mail existente ou criados do zero. Eles também suportam o envio de anexos.</p>
+                    <p>Além disso, os modelos podem conter imagens de rastreamento para que o SafePhish saiba quando o usuário abre o e-mail.</p>
+                    
+                    <h3>Criando Modelos</h3>
+                    <p>Para criar um modelo, primeiro navegue até a página “Email Templates” e clique no botão 
+                       <img src="/assets/new_template.png" alt="Botão New Template" style="vertical-align: middle; max-width: 150px; height: auto; margin: 0 5px;">.
+                    </p>
+
+                    <h3>Usando o Editor HTML</h3>
+                    <p>Um recurso poderoso do SafePhish é o editor HTML. Para alternar entre o código-fonte HTML e a visualização, clique no botão "Source".</p>
+                    <img src="/assets/hmtl_editor.png" alt="Editor HTML" style="width: 100%; max-width: 700px; height: auto; border: 1px solid #ddd; border-radius: 4px; margin: 15px 0;">
+                    <p>Isso é útil para garantir que o e-mail recebido pelo usuário seja perfeito em cada pixel.</p>
+                    
+                    <h3>Importando um E-mail</h3>
+                    <p>O SafePhish suporta a capacidade de importar um e-mail a partir do conteúdo bruto. Para fazer isso, clique no botão "Import Email" e cole o conteúdo original do e-mail. Esse conteúdo geralmente é encontrado através do recurso "View Original" (Ver Original) de muitos clientes de e-mail:</p>
+                    <img src="/assets/import_email.png" alt="Modal de Importar E-mail" style="width: 100%; max-width: 700px; height: auto; border: 1px solid #ddd; border-radius: 4px; margin: 15px 0;">
+                </div>
+            </div>
+
+            <div class="widget" id="attachments">
+                <div class="widget-header">
+                    <h2>Rastreamento em Anexos (Attachment Tracking)</h2>
+                </div>
+                <div class="widget-content">
+                    <p>É possível adicionar variáveis de template do SafePhish ao conteúdo de determinados tipos de arquivos anexados.</p>
+                    
+                    <p>Os seguintes formatos são suportados:</p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Type</th>
+                                <th>Extension</th>
+                                <th>Sample Template</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Documento Word</td>
+                                <td>.docx</td>
+                                <td><a href="/docs/safephish_word.docx" download>safephish_word.docx</a></td>
+                            </tr>
+                            <tr>
+                                <td>Documento Word com Macro</td>
+                                <td>.docm</td>
+                                <td><a href="/docs/safephish_word_macro.docm" download>safephish_word_macro.docm</a></td>
+                            </tr>
+                            <tr>
+                                <td>Apresentação PowerPoint</td>
+                                <td>.pptx</td>
+                                <td><a href="/docs/safephish_powerpoint.pptx" download>safephish_powerpoint.pptx</a></td>
+                            </tr>
+                            <tr>
+                                <td>Documento Excel</td>
+                                <td>.xlsx</td>
+                                <td><a href="/docs/safephish_excel.xlsx" download>safephish_excel.xlsx</a></td>
+                            </tr>
+                            <tr>
+                                <td>Documento Excel com Macro</td>
+                                <td>.xlsm</td>
+                                <td><a href="/docs/safephish_excel_macro.xlsm" download>safephish_excel_macro.xlsm</a></td>
+                            </tr>
+                            <tr>
+                                <td>Arquivo de Texto</td>
+                                <td>.txt</td>
+                                <td><a href="/docs/safephish_text.txt" download>safephish_text.txt</a></td>
+                            </tr>
+                            <tr>
+                                <td>Arquivo HTML</td>
+                                <td>.html</td>
+                                <td><a href="/docs/safephish_html.html" download>safephish_html.html</a></td>
+                            </tr>
+                            <tr>
+                                <td>Arquivo de Calendário</td>
+                                <td>.ics</td>
+                                <td><a href="/docs/safephish_invite.ics" download>safephish_invite.ics</a></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <p>Qualquer variável de template colocada dentro desses documentos será convertida para os valores corretos quando a campanha for lançada.</p>
+                    <p>Adicionar imagens de rastreamento em documentos Office permite identificar quando um documento foi aberto ou quando macros foram ativadas.</p>
+
+                    <h3>Variáveis de Template (Exemplo)</h3>
+                    <pre><code>Dear {{.FirstName}} {{.LastName}},
+Your email address is {{.Email}} and your position is {{.Position}}
+Below is a tracking image When this document opens Word will try load it from the safephish server, creating a notification that the document has been opened
+(image URL is {{.TrackingURL}})</code></pre>
+
+                    <h4>Exemplos de Documentos Office</h4>
+                    <h5>Rastreando Abertura de Documento Office</h5>
+                    <p>Adicionar <code>{{.TrackingURL}}</code> como imagem vinculada para rastrear abertura do arquivo.</p>
+                    <h5>Passos:</h5>
+                    <ol>
+                        <li>Criar novo documento.</li>
+                        <li>Inserir → Quick Parts → Field → IncludePicture.</li>
+                        <li>Inserir <code>{{.TrackingURL}}</code>.</li>
+                        <li>Marcar "Data not stored with document".</li>
+                    </ol>
+                    
+                    <h5>Rastreando Execução de Macros</h5>
+                    <p>Crie uma textbox com <code>{{.URL}}</code>, nomeie de <code>urlbox</code> e use o macro:</p>
+                    
+                    <h5>Word VBA:</h5>
+                    <pre><code>Sub urlfetch()
+Dim shp As Shape
+For Each shp In ActiveDocument.Shapes
+If shp.Name = "urlbox" Then
+URL = shp.TextFrame.TextRange.Text
+ActiveDocument.FollowHyperlink Address:=URL
+End If
+Next
+End Sub
+Public Sub AutoOpen()
+urlfetch
+End Sub</code></pre>
+
+                    <h5>Excel VBA:</h5>
+                    <pre><code>Sub urlfetch()
+For Each shp In ActiveSheet.Shapes
+If shp.Name = "urlbox" Then
+Url = shp.TextFrame2.TextRange.Text
+FollowHyperlink (Url)
+End If
+Next
+End Sub
+Public Sub Workbook_Open()
+urlfetch
+End Sub</code></pre>
+
+                    <h3>Exemplos de Arquivo Texto (.txt)</h3>
+                    <h4>Exemplo foo.txt:</h4>
+                    <pre><code>Hello {{.FirstName}},
+This is a plain text file that was sent to {{.Email}}.
+If you could be so kind as to copy and paste this URL into your browser: {{.URL}}</code></pre>
+
+                    <h4>Exemplo invite.ics:</h4>
+                    <pre><code>BEGIN:VCALENDAR
+DTSTAMP:20210306T182251Z
+DTSTART;TZID=Europe/London:20210306T183000
+DTEND;TZID=Europe/London:20210306T190000
+SUMMARY:SafePhish Test Calendar
+TZID=Europe/London
+DESCRIPTION:Glenn is inviting you to a Zoom meeting.
+Join Zoom Meeting {{.URL}}
+LOCATION:{{.URL}}
+END:VCALENDAR</code></pre>
+
+                </div>
+            </div>
+
+            <div class="widget" id="sending-profiles">
+                <div class="widget-header">
+                    <h2>Sending Profiles (Perfis de Envio)</h2>
+                </div>
+                <div class="widget-content">
+                    <p>Para enviar e-mails, o SafePhish exige que você configure os detalhes de um servidor SMTP, chamados de “Sending Profiles”.</p>
+                    
+                    <h4>Para criar um perfil de envio:</h4>
+                    <ol>
+                        <li>Clique em “Sending Profiles” no menu lateral</li>
+                        <li>Clique no botão “New Profile”</li>
+                    </ol>
+                    <div class="note">
+                        Observação: se você precisa de um servidor SMTP apenas para testes, o Mailhog costuma funcionar muito bem.
+                    </div>
+
+                    <h3>Configuração dos Perfis de Envio</h3>
+                    <ul>
+                        <li>O campo “From” deve conter um endereço de e-mail válido e no formato correto.</li>
+                        <li>O campo “Host” deve incluir host + porta, por exemplo: <code>smtp.seuservidor.com:587</code></li>
+                    </ul>
+
+                    <h3>Enviando um E-mail de Teste</h3>
+                    <p>Para testar a configuração do SMTP, clique no botão “Send Test Email”. Após preencher os dados do destinatário e clicar em “Send”, o SafePhish mostrará uma mensagem indicando se o e-mail foi enviado com sucesso ou não.</p>
+                    <a href="#" class="btn">Send Test Email</a>
+                </div>
+            </div>
+
+            <div class="widget" id="reports">
+                <div class="widget-header">
+                    <h2>Generating Reports (Gerando Relatórios)</h2>
+                </div>
+                <div class="widget-content">
+                    <p>Gerar relatórios é uma parte essencial de qualquer campanha realizada no SafePhish. Para facilitar esse processo, existem algumas opções que você pode utilizar:</p>
+
+                    <h3>Usando a Interface Web (Web UI)</h3>
+                    <p>O painel do SafePhish fornece uma visão geral rápida dos resultados de uma campanha específica.</p>
+                    <p>Além de visualizar os resultados diretamente no painel, você pode exportar os logs brutos do SafePhish usando o botão "Export CSV" localizado no topo da página.</p>
+                    <p>Depois disso, você pode analisar esses arquivos CSV usando softwares como:</p>
+                    <ul>
+                        <li>Microsoft Excel</li>
+                        <li>Google Sheets</li>
+                        <li>Ou qualquer ferramenta que aceite arquivos CSV</li>
+                    </ul>
+
+                    <h3>Usando o GoReport</h3>
+                    <p>O SafePhish possui uma comunidade muito ativa que cria ferramentas para facilitar relatórios usando a API. Um excelente exemplo é o GoReport.</p>
+                    <p>Criado pelo usuário do GitHub @chrismaddalena, o GoReport oferece uma forma simples e prática de gerar relatórios para campanhas do SafePhish.</p>
+                    <p>Com esse script, você pode gerar relatórios da sua campanha em:</p>
+                    <ul>
+                        <li>CSV</li>
+                        <li>DOCX</li>
+                    </ul>
+                    <p>De forma automatizada e organizada.</p>
+                </div>
+            </div>
+
+            <div class="widget" id="email-reporting">
+                <div class="widget-header">
+                    <h2>Email Reporting (Relato de E-mails Suspeitos)</h2>
+                </div>
+                <div class="widget-content">
+                    <p>O SafePhish permite que usuários reportem e-mails simulados de phishing, incentivando a detecção precoce de ameaças reais. A partir da versão v0.9.0, oferece suporte a reporte via IMAP.</p>
+
+                    <h3>ImportÂncia do Email Reporting</h3>
+                    <p>Relatórios ajudam a identificar campanhas em andamento. Exemplos comparativos mostram que mesmo um único reporte pode alertar administradores para uma ameaça ativa.</p>
+
+                    <h3>Reportando via IMAP</h3>
+                    <p>Organizações usam endereços como <code>security@empresa.com</code>. O SafePhish verifica essa caixa via IMAP e marca os e-mails como reportados.</p>
+                    <p>Configurações em: <strong>Account Settings → Reporting Settings</strong></p>
+                    <p>Inclui:</p>
+                    <ul>
+                        <li>Host IMAP</li>
+                        <li>Porta</li>
+                        <li>Username</li>
+                        <li>Password</li>
+                        <li>TLS</li>
+                        <li>Pasta IMAP</li>
+                        <li>Frequência de verificação</li>
+                        <li>Exclusão opcional após reporte</li>
+                    </ul>
+                    <p>Para reportar, basta acessar: Legal: <code>http://phish_server/report?rid=1234567</code></p>
+                </div>
+            </div>
+
+            <div class="widget" id="webhooks">
+                <div class="widget-header">
+                    <h2>Webhooks</h2>
+                </div>
+                <div class="widget-content">
+                    <p>A partir da v0.9.0, o SafePhish envia eventos em tempo real via webhooks.</p>
+                    <p>Admins podem criar múltiplos webhooks em: <strong>Webhooks → New Webhook</strong></p>
+                    <p>Os eventos são enviados como JSON e podem ser assinados com HMAC-SHA256.</p>
+                    <p>A assinatura vem no header: <code>X-SafePhish-Signature: sha256=&lt;hash&gt;</code></p>
+
+                    <h4>Exemplo de Evento</h4>
+                    <pre><code>{
+"email": "foo.bar@example.com",
+"time": "2020-01-20T17:33:55.553906Z",
+"message": "Email Opened",
+"details": ""
+}</code></pre>
+                    
+                    <h4>Mensagens possíveis:</h4>
+                    <ul>
+                        <li>Error Sending Email</li>
+                        <li>Email Sent</li>
+                        <li>Email Opened</li>
+                        <li>Clicked Link</li>
+                        <li>Submitted Data</li>
+                        <li>Email Reported</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="widget" id="user-management">
+                <div class="widget-header">
+                    <h2>User Management (Gerenciamento de Usuários)</h2>
+                </div>
+                <div class="widget-content">
+                    <h4>Papéis disponíveis:</h4>
+                    <ul>
+                        <li><strong>User</strong> – Acesso limitado</li>
+                        <li><strong>Admin</strong> – Acesso total</li>
+                    </ul>
+                    
+                    <h4>Criar usuários:</h4>
+                    <p><strong>User Management → + New User</strong></p>
+                    <p>Opções:</p>
+                    <ul>
+                        <li>Username</li>
+                        <li>Password</li>
+                        <li>Role</li>
+                        <li>Forçar redefinição de senha</li>
+                    </ul>
+                    <p><strong>Excluir usuários:</strong> ícone de lixeira. Nunca é permitido excluir o último Admin.</p>
+                    
+                    <h3>Impersonate A User</h3>
+                    <p>Admins podem assumir a sessão de um usuário para troubleshooting. Depois, deve-se fazer logout e login novamente.</p>
+                </div>
+            </div>
+
+            <div class="widget" id="logging">
+                <div class="widget-header">
+                    <h2>Logging (Registro de Logs)</h2>
+                </div>
+                <div class="widget-content">
+                    <p>Por padrão, logs vão para stderr.</p>
+                    
+                    <h3>Antes da v0.8.0</h3>
+                    <p>Redirecionamento manual:</p>
+                    <pre><code>./safephish > safephish.log 2>&1</code></pre>
+                    
+                    <h3>A partir da v0.8.0</h3>
+                    <p>Configuração no <code>config.json</code>:</p>
+                    <pre><code>"logging": {
+"filename": "safephish.log"
+}</code></pre>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</body>
+</html>
